@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  mysql:
+    container_name: my_mysql
+    image: mysql:5.7
+    restart: always
+    environment: 
+      MYSQL_DATABASE: 'db1'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_USER: 'user'
+    ports:
+    - '3306'
+    expose:
+    - '3306'
+    volumes:
+    - my-db:/var/lib/mysql
+  python3:
+    container_name: python3_scripts
+    image: my-scripts:01
+    build: ./dockerfile
+    environment:
+      DB_NAME: 'db'
+      HOST: 'mysql'
+      DB_USER: 'root'
+      DB_PASSWORD: 'password'
+    volumes:
+      - my-db:/usr/src/app
+    depends_on:
+      - mysql
+  portainer:
+    container_name: portainer
+    image: portainer/portainer:alpine
+    ports:
+      - '9000:9000'
+    restart: unless-stopped
+    volumes:
+      - my-db:/data portainer/portainer-ce
+      - /var/run/docker.sock:/var/run/docker.sock
+  heidisql:
+    container_name: heidisql
+    image: tsari/heidisql
+volumes:
+  my-db:
+  docker_sock:
